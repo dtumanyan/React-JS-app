@@ -19,11 +19,15 @@ class List extends React.Component {
         )
     }
     componentDidMount() {
-        
+        this.setState({ loading: true })
         fetch(`${API_URL}/cryptocurrencies?page=1b&perPage=20`) 
             .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.log(error))
+            .then(data => {
+                this.setState({ loading: false })
+            })
+            .catch(error => {
+                this.setState({ loading: false })
+            })
     }
 }
 

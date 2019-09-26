@@ -1,6 +1,7 @@
 import React from 'react';
 import { API_URL } from './../config';
 import Loading from '../components/common/Loading';
+import Pagination from './Pagination'
 import './List.css';
 
 class List extends React.Component {
@@ -9,21 +10,28 @@ class List extends React.Component {
         this.state = {
             loading: false,
             currencies: [],
-            error: null
+            error: null,
+            totalPages: 0,
+            page: 1
         }
     }
-
+    
     componentDidMount() {
         this.setState({ 
             loading: true 
         })
 
-        fetch(`${API_URL}/cryptocurrencies?page=1&perPage=20`) 
-            .then(response => response.json())
+        fetch(`${API_URL}/cryptocurrencies?page={this.state.page}&perPage=20`) 
+        .then((response) => {
+            return response.json().then(data => {
+                return response.ok ? data : Promise.reject(data)
+            })
+        })
             .then(data => {
                 this.setState({ 
                     loading: false, 
-                    currencies: data.currencies 
+                    currencies: data.currencies,
+                    totalPages: data.totalPages
                 })
             })
             .catch(() => {
@@ -41,8 +49,16 @@ class List extends React.Component {
         }
     }
 
+    handlePaginationClick = (direction) => {
+        if (direction === 'next') {
+            alert('next button')
+        } else {alert ('previous button')}
+    } 
+    
+
     render(){
-        const { loading, currencies, error } = this.state;
+        console.log(this.state);
+        const { loading, currencies, error, page, totalPages } = this.state;
             if (loading) {
             return (
                 <div className="loading-container">
@@ -64,7 +80,7 @@ class List extends React.Component {
 
                         <tbody className="Table-body">
                             { currencies.map(currency => 
-                            {console.log(currency)
+                            {
                                 return (
                                     <tr>
                                         <td>
@@ -88,6 +104,13 @@ class List extends React.Component {
                             }
                         </tbody>
                     </table>
+
+                    <Pagination 
+                      page={page}
+                      totalPages={totalPages}
+                      handlePaginationClick={this.handlePaginationClick}
+                    />
+
                 </div>
             )
     }
